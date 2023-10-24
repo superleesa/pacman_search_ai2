@@ -74,27 +74,30 @@ class Q1Agent(ValueEstimationAgent):
             possible_states = self.MDP.getStates()
             self.values = np.zeros((self.MDP.grid_width, self.MDP.grid_height))
 
+
             # Write value iteration code here
             "*** YOUR CODE STARTS HERE ***"
+
+            self.policies = np.empty((self.MDP.grid_width, self.MDP.grid_height), dtype=object)
 
             # todo discounting
             for iter_idx in range(self.iterations):
                 for state in possible_states:
                     possible_actions = self.MDP.getPossibleActions(state)
 
-                    max_score_action = None
+                    max_score_action = self.policies[state[0], state[1]]
                     max_score = self.getValue(state)
                     for action in possible_actions:
                         # calculate the value using bellman equation
+                        q_value = self.computeQValueFromValues(state, action)
 
-                        q_state = self.MDP.getTransitionStatesandProbs(state, action)
-                        expected_utility = sum([(self.MDP.getReward(state, action, next_state) + self.discount*self.getValue(next_state))*prob for next_state, prob in q_state])
-                        if expected_utility > max_score:
-                            max_score = expected_utility
+                        if q_value > max_score:
+                            max_score = q_value
                             max_score_action = action
 
                     # todo : tie-breaking argmax
                     self.values[state[0], state[1]] = max_score
+                    self.policies[state[0], state[1]] = max_score_action
 
 
             "*** YOUR CODE ENDS HERE ***"
@@ -108,7 +111,13 @@ class Q1Agent(ValueEstimationAgent):
         value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        q_state = self.MDP.getTransitionStatesAndProbs(state, action)
+        q_value = sum(
+            [(self.MDP.getReward(state, action, next_state) + self.discount * self.getValue(next_state)) * prob for
+             next_state, prob in q_state])
+
+        return q_value
+
 
     def computeActionFromValues(self, state):
         """
@@ -121,7 +130,7 @@ class Q1Agent(ValueEstimationAgent):
         """
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.policies[state[0], state[1]]
 
     ########################################################################
     ####            CODE FOR YOU TO MODIFY ENDS HERE                    ####
