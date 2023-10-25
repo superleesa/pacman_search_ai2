@@ -127,7 +127,8 @@ class Q2Agent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        action_index = self.getActionIndex(action)
+        return self.Q_values[state[0], state[1], action_index]
 
     def computeValueFromQValues(self, state):
         """
@@ -141,7 +142,12 @@ class Q2Agent(ReinforcementAgent):
         """
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legal_actions = self.getLegalActions(state)
+        if len(legal_actions):
+            return 0.0
+
+        legal_action_indices = [self.getActionIndex(legal_action) for legal_action in legal_actions]
+        return max(self.Q_values[state[0], state[1], legal_action_indices])
 
     def computeActionFromQValues(self, state):
         """
@@ -151,7 +157,21 @@ class Q2Agent(ReinforcementAgent):
           HINT: You might want to use self.getLegalActions(state)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legal_actions = self.getLegalActions(state)
+        if len(legal_actions):
+            return None
+
+        legal_action_indices = [self.getActionIndex(legal_action) for legal_action in legal_actions]
+        best_action_index = np.argmax(self.Q_values[state[0], state[1], legal_action_indices])
+
+        action_index_to_action = {
+            0: 'Directions.NORTH',
+            1: 'Directions.SOUTH',
+            2: 'Directions.EAST',
+            3: 'Directions.WEST'
+        }
+        best_action = action_index_to_action[best_action_index]
+        return best_action
 
     def getAction(self, state: GameState):
         """
@@ -166,11 +186,22 @@ class Q2Agent(ReinforcementAgent):
           HINT: You might want to use self.getLegalActions(state)
         """
 
+        # todo check if state is gamestate or mdpstate
+
         legalActions = self.getLegalActions(state)
         action = None
 
         "*** YOUR CODE STARTS HERE ***"
-        util.raiseNotDefined()
+
+        # todo implement upper bound confidence
+        choose_random_action = util.flipCoin(self.epsilon)
+
+        if choose_random_action:
+            action = random.choice(legalActions)
+        else:
+            # choose the action that maximizes the value
+            action = self.computeActionFromQValues(state)
+
         "*** YOUR CODE ENDS HERE ***"
 
         self.doAction(state, action)
@@ -186,4 +217,8 @@ class Q2Agent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        action_index = self.getActionIndex(action)
+        current = self.Q_values[state[0], state[1], action_index]
+        max_q_val = self.computeValueFromQValues(nextState)
+
+        self.Q_values[state[0], state[1], action_index] = current + self.alpha*(reward + self.discount*max_q_val - current)
