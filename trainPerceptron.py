@@ -223,7 +223,7 @@ def readCommand(argv):
 
     parser.add_option('-t', '--training', help=default('The size of the training set'), default=TRAINING_SET_SIZE, type="int")
     parser.add_option('-i', '--iterations', help=default("Maximum iterations to run training"), default=20, type="int")
-    parser.add_option('-l', '--learning_rate', help=default("Learning rate to use in training"), default=1, type="int")
+    parser.add_option('-l', '--learning_rate', help=default("Learning rate to use in training"), default=1, type="float")
     parser.add_option('-s', '--test', help=default("Amount of test data to use"), default=TEST_SET_SIZE, type="int")
 
     options, otherjunk = parser.parse_args(argv)
