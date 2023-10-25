@@ -143,7 +143,7 @@ class Q2Agent(ReinforcementAgent):
 
         "*** YOUR CODE HERE ***"
         legal_actions = self.getLegalActions(state)
-        if len(legal_actions):
+        if not len(legal_actions):
             return 0.0
 
         x_pos, y_pos = state.getPacmanPosition()
@@ -201,9 +201,6 @@ class Q2Agent(ReinforcementAgent):
           HINT: To pick randomly from a list, use random.choice(list)
           HINT: You might want to use self.getLegalActions(state)
         """
-
-        # todo check if state is gamestate or mdpstate
-
         legalActions = self.getLegalActions(state)
         action = None
 
