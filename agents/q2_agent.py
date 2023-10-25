@@ -146,8 +146,10 @@ class Q2Agent(ReinforcementAgent):
         if len(legal_actions):
             return 0.0
 
+        x_pos, y_pos = state.getPacmanPosition()
+
         legal_action_indices = [self.getActionIndex(legal_action) for legal_action in legal_actions]
-        return max(self.Q_values[state[0], state[1], legal_action_indices])
+        return max(self.Q_values[x_pos, y_pos, legal_action_indices])
 
     def computeActionFromQValues(self, state):
         """
@@ -158,19 +160,33 @@ class Q2Agent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
         legal_actions = self.getLegalActions(state)
-        if len(legal_actions):
+        if not len(legal_actions):
             return None
 
-        legal_action_indices = [self.getActionIndex(legal_action) for legal_action in legal_actions]
-        best_action_index = np.argmax(self.Q_values[state[0], state[1], legal_action_indices])
+        # print(legal_actions)
 
-        action_index_to_action = {
-            0: 'Directions.NORTH',
-            1: 'Directions.SOUTH',
-            2: 'Directions.EAST',
-            3: 'Directions.WEST'
-        }
-        best_action = action_index_to_action[best_action_index]
+        x_pos, y_pos = state.getPacmanPosition()
+
+        legal_action_indices = [self.getActionIndex(legal_action) for legal_action in legal_actions]
+
+        # finding the best action
+        # todo: do tie-breaking
+        best_action_idx = np.argmax(self.Q_values[x_pos, y_pos, legal_action_indices])
+        # best_action_index = None
+        # max_q_value = -math.inf
+        # for legal_action_idx in legal_action_indices:
+        #     q_value = self.Q_values[x_pos, y_pos, legal_action_idx]
+        #     if q_value > max_q_value:
+        #         max_q_value = q_value
+        #         best_action_index = legal_action_idx
+
+        # action_index_to_action = {
+        #     0: 'Directions.NORTH',
+        #     1: 'Directions.SOUTH',
+        #     2: 'Directions.EAST',
+        #     3: 'Directions.WEST'
+        # }
+        best_action = legal_actions[best_action_idx]
         return best_action
 
     def getAction(self, state: GameState):
@@ -207,7 +223,7 @@ class Q2Agent(ReinforcementAgent):
         self.doAction(state, action)
         return action
 
-    def update(self, state, action, nextState, reward):
+    def update(self, state: GameState, action, nextState, reward):
         """
           The parent class calls this to observe a
           state = action => nextState and reward transition.
@@ -218,7 +234,9 @@ class Q2Agent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
         action_index = self.getActionIndex(action)
-        current = self.Q_values[state[0], state[1], action_index]
+        x_pos, y_pos = state.getPacmanPosition()
+        current = self.Q_values[x_pos, y_pos, action_index]
         max_q_val = self.computeValueFromQValues(nextState)
 
-        self.Q_values[state[0], state[1], action_index] = current + self.alpha*(reward + self.discount*max_q_val - current)
+        self.Q_values[x_pos, y_pos, action_index] = current + self.alpha*(reward + self.discount*max_q_val - current)
+
